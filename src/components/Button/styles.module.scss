@@ -1,0 +1,36 @@
+.button {
+
+    width: 100%;
+    border-radius: 8px;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: center;
+    column-gap: 8px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .primary {
+    background: linear-gradient(90deg, $blue 0%, #53C0F0 68.65%);
+    color: $text-light;
+
+  }
+  
+  .cancel {
+    background-color: #E7EEFB;
+    color: $text-dark;
+  
+  }
+  
+  
+  .danger {
+    background: linear-gradient(90deg, $danger 0%, #F05353 68.65%);
+
+    color: $text-light;
+
+  }
+  
