@@ -21,6 +21,10 @@ interface Task {
   completed: boolean;
 }
 
+interface FormData {
+  taskName: string;
+}
+
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
@@ -58,7 +62,7 @@ export default function Home() {
     reset();
   };
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: FormData) => {
     const newTask: Task = {
       id: nextId,
       name: data.taskName,
