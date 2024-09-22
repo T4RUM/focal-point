@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import styles from "./home.module.scss"; 
+import styles from "./home.module.scss";
 import Navbar from "@/components/Navbar";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
@@ -36,9 +36,21 @@ export default function Home() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      taskName: "", 
+      taskName: "",
     },
   });
+
+  const saveTasksToLocalStorage = (tasks: Task[]) => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  };
+
+  const loadTasksFromLocalStorage = () => {
+    const storedTasks = localStorage.getItem("tasks");
+    if (storedTasks) {
+      return JSON.parse(storedTasks);
+    }
+    return [];
+  };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -52,27 +64,39 @@ export default function Home() {
       name: data.taskName,
       completed: false,
     };
-    setTasks([...tasks, newTask]);
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
     setNextId(nextId + 1);
     reset();
     closeModal();
   };
 
   const handleCheckboxChange = (taskId: number) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
+    const updatedTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, completed: !task.completed } : task
     );
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   const handleDeleteTask = (taskId: number) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    const updatedTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
     setIsModalDeleteOpen(false);
   };
 
   const activeTasks = tasks.filter((task) => !task.completed);
   const completedTasks = tasks.filter((task) => task.completed);
+
+  useEffect(() => {
+    const savedTasks = loadTasksFromLocalStorage();
+    setTasks(savedTasks);
+    setNextId(
+      savedTasks.length > 0 ? savedTasks[savedTasks.length - 1].id + 1 : 1
+    );
+  }, []);
 
   return (
     <div>
@@ -175,11 +199,7 @@ export default function Home() {
                   )}
                 </div>
                 <div className={styles["container-buttons"]}>
-                  <Button
-                    text="Cancelar"
-                    color="cancel"
-                    onClick={closeModal}
-                  />
+                  <Button text="Cancelar" color="cancel" onClick={closeModal} />
                   <Button text="Adicionar" type="submit" />
                 </div>
               </form>
@@ -200,8 +220,8 @@ export default function Home() {
                     onClick={() => setIsModalDeleteOpen(false)}
                   />
                   <Button
-                    color="danger"
                     text="Deletar"
+                    color="danger"
                     onClick={() => {
                       if (taskToDelete !== undefined) {
                         handleDeleteTask(taskToDelete);
